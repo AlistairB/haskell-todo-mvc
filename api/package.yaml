@@ -32,6 +32,9 @@ library:
     - aeson
     - wai
     - warp
+    - monad-logger
+    - mtl
+    - transformers
 
 executables:
   haskell-todo-mvc-exe:

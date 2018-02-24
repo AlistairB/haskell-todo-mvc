@@ -6,29 +6,18 @@ module Lib
     , app
     ) where
 
-import           Data.Aeson
-import           Data.Aeson.TH
-import           Data.Int                 (Int64)
-import           Network.Wai
-import           Network.Wai.Handler.Warp
-import           Servant                  ((:<|>), (:>), Capture, Get, JSON,
-                                           Post, Proxy (Proxy), ReqBody, Server,
-                                           serve)
+import           Data.Aeson.TH            (defaultOptions, deriveJSON)
+import           Data.Maybe               (listToMaybe)
+import           Network.Wai              (Application)
+import           Network.Wai.Handler.Warp (run)
+import           Servant
 
--- data Todo = Todo
---   { id :: Int
---   , message :: String
---   } deriving Show
+data Todo = Todo
+  { todoId  :: Int
+  , message :: String
+  } deriving Show
 
-data User = User
-  { userId        :: Int
-  , userFirstName :: String
-  , userLastName  :: String
-  } deriving (Eq, Show)
-
-$(deriveJSON defaultOptions ''User)
-
-type API = "users" :> Get '[JSON] [User]
+$(deriveJSON defaultOptions ''Todo)
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -40,24 +29,24 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return users
+server = getTodos :<|> getTodo :<|> addTodo
 
-users :: [User]
-users = [ User 1 "Isaac" "Newton"
-        , User 2 "Albert" "Einstein"
-        ]
+getTodos :: Handler [Todo]
+getTodos = pure todos
 
--- type Api = "todos" :> Capture "id" Int :> Get '[JSON] Todo
---       :<|> "todos" :> Capture "name" String :> Get '[JSON] Todo
---       :<|> "todos" :> ReqBody '[JSON] Todo :> Post '[JSON] Int64
+getTodo :: Int -> Handler (Maybe Todo)
+getTodo todoId' = pure $ listToMaybe $ filter ((==) todoId' . todoId) todos
 
+addTodo :: Todo -> Handler Int
+addTodo todo = pure 1
 
--- todos :: [Todo]
--- todos =
---   [ Todo 1 "Write haskell api"
---   , Todo 2 "Write purescript frontend"
---   ]
+type API = "todos" :> Get '[JSON] [Todo]
+      :<|> "todos" :> Capture "id" Int :> Get '[JSON] (Maybe Todo)
+      :<|> "todos" :> ReqBody '[JSON] Todo :> Post '[JSON] Int
 
--- getTodo :: Int -> Server Todo
--- getTodo id = pure $ Todo 1 "omg"
+todos :: [Todo]
+todos =
+  [ Todo 1 "Write haskell api"
+  , Todo 2 "Write purescript frontend"
+  ]
 

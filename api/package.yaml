@@ -17,7 +17,6 @@ ghc-options:
 - -Wincomplete-record-updates
 - -Widentities
 - -Wredundant-constraints
-- -Wmissing-import-lists
 - -Wmonomorphism-restriction
 
 description: Todo mvc practice app

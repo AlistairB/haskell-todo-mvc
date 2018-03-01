@@ -1,6 +1,14 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Lib
+import           Control.Monad.Logger        (runNoLoggingT, runStdoutLoggingT)
+import           Database.Persist.Postgresql (ConnectionPool, ConnectionString,
+                                              createPostgresqlPool)
+
+import           Lib
+import           Types
 
 main :: IO ()
-main = startApp
+main = do
+  pool <- runStdoutLoggingT $ createPostgresqlPool "database" 1
+  startApp $ AppConfig pool

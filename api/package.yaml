@@ -35,6 +35,9 @@ library:
     - monad-logger
     - mtl
     - transformers
+    - persistent
+    - persistent-template
+    - persistent-postgresql
 
 executables:
   haskell-todo-mvc-exe:
@@ -46,6 +49,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - haskell-todo-mvc
+    - monad-logger
+    - persistent
+    - persistent-postgresql
 
 tests:
   haskell-todo-mvc-test:

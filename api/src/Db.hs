@@ -29,6 +29,13 @@ Todo json
     name String
 |]
 
+class Monad m => MonadTodoDb m where
+  getItems :: m [Todo]
+  getItem  :: TodoId -> m Todo
+  addItem  :: Todo -> m ()
+
+
+
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll
 

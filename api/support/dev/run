@@ -1,0 +1,9 @@
+#!/bin/bash -eu
+
+echo 'Building..'
+
+stack build
+
+echo 'Running..'
+
+stack exec haskell-todo-mvc-exe

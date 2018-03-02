@@ -31,10 +31,13 @@ Todo json
 
 class Monad m => MonadTodoDb m where
   getItems :: m [Todo]
-  getItem  :: TodoId -> m Todo
+  getItem  :: TodoId -> m (Maybe Todo)
   addItem  :: Todo -> m ()
 
-
+instance MonadTodoDb App where
+  getItems = undefined
+  getItem todoId' = runDb $ get todoId'
+  addItem = undefined
 
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll

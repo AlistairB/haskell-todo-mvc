@@ -1,0 +1,3 @@
+#!/bin/bash -eu
+
+docker-compose run --rm -d --service-ports database

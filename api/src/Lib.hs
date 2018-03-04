@@ -8,6 +8,7 @@ module Lib
     , app
     ) where
 
+import           Control.Monad.Except
 import           Control.Monad.IO.Class   (MonadIO, liftIO)
 import           Control.Monad.Logger     (LoggingT, MonadLogger,
                                            runStdoutLoggingT)
@@ -22,7 +23,7 @@ import           Servant.Server           (hoistServer)
 import           Types
 
 appToHandler :: AppConfig -> App a -> Handler a
-appToHandler config = liftIO . flip runReaderT config . runStdoutLoggingT . unApp
+appToHandler config = liftIO . runExceptT . flip runReaderT config . runStdoutLoggingT . unApp
 
 server :: AppConfig -> Server TodoAPI
 server config = hoistServer api (appToHandler config) backend

@@ -38,6 +38,7 @@ library:
     - persistent
     - persistent-template
     - persistent-postgresql
+    - bifunctors
 
 executables:
   haskell-todo-mvc-exe:

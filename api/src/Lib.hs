@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeOperators              #-}
 module Lib
@@ -9,21 +10,26 @@ module Lib
     ) where
 
 import           Control.Monad.Except
-import           Control.Monad.IO.Class   (MonadIO, liftIO)
-import           Control.Monad.Logger     (LoggingT, MonadLogger,
-                                           runStdoutLoggingT)
-import           Control.Monad.Reader     (MonadReader, ReaderT, runReaderT)
-import           Data.Aeson.TH            (defaultOptions, deriveJSON)
-import           Data.Maybe               (listToMaybe)
+import           Control.Monad.IO.Class     (MonadIO, liftIO)
+import           Control.Monad.Logger       (LoggingT, MonadLogger,
+                                             runStdoutLoggingT)
+import           Control.Monad.Reader       (MonadReader, ReaderT, runReaderT)
+import           Data.Aeson.TH              (defaultOptions, deriveJSON)
+import           Data.Bifunctor
+import           Data.ByteString.Lazy.Char8
+import           Data.Maybe                 (listToMaybe)
 import           Db
-import           Network.Wai              (Application)
-import           Network.Wai.Handler.Warp (run)
+import           Network.Wai                (Application)
+import           Network.Wai.Handler.Warp   (run)
 import           Servant
-import           Servant.Server           (hoistServer)
+import           Servant.Server
 import           Types
 
 appToHandler :: AppConfig -> App a -> Handler a
-appToHandler config = liftIO . runExceptT . flip runReaderT config . runStdoutLoggingT . unApp
+appToHandler config = Handler . first toServantError . flip runReaderT config . runStdoutLoggingT . unApp
+
+toServantError :: AppError -> ServantErr
+toServantError (DbError a) = err500 { errBody = pack $ show a }
 
 server :: AppConfig -> Server TodoAPI
 server config = hoistServer api (appToHandler config) backend

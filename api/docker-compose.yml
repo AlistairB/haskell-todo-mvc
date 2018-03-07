@@ -14,7 +14,7 @@ services:
       - database
 
   database:
-    image: postgres:10.2
+    image: postgres:10.3
     environment:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: dbpassword

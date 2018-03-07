@@ -1,0 +1,3 @@
+#!/bin/bash -eu
+
+stack build && stack exec haskell-todo-mvc-exe

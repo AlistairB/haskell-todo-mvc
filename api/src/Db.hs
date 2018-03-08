@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
 {-# LANGUAGE FlexibleContexts           #-}
@@ -34,7 +35,11 @@ class Monad m => MonadTodoDb m where
   addItem  :: Todo -> m ()
 
 instance MonadTodoDb App where
-  getItems = undefined
+  getItems = do
+    results <- runDb $ selectList [] []
+    case results of
+      Left e -> throwError e
+      Right results' -> pure $ entityVal <$> results'
 
   getItem todoId' = do
     eitherResult <- runDb $ get (toSqlKey todoId')
@@ -42,7 +47,11 @@ instance MonadTodoDb App where
       Left e -> throwError e
       Right a -> pure a
 
-  addItem = undefined
+  addItem todoItem' = do
+    eitherResult <- runDb $ get (toSqlKey todoId')
+    case eitherResult of
+      Left e -> throwError e
+      Right a -> pure a
 
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll
@@ -51,8 +60,3 @@ runDb :: (MonadReader AppConfig m, MonadIO m) => SqlPersistT IO b -> m (Either A
 runDb query = do
     pool <- asks dbPool
     liftIO $ (fmap . first) DbError $ try $ runSqlPool query pool
-
--- runDb :: (MonadReader AppConfig m, MonadIO m) => SqlPersistT IO b -> m b
--- runDb query = do
---     pool <- asks dbPool
---     liftIO $ runSqlPool query pool

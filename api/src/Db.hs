@@ -48,15 +48,17 @@ instance MonadTodoDb App where
       Right a -> pure a
 
   addItem todoItem' = do
-    eitherResult <- runDb $ get (toSqlKey todoId')
-    case eitherResult of
+    eitherResult <- runDb $ insert todoItem'
       Left e -> throwError e
-      Right a -> pure a
+      Right a -> pure ()
 
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll
 
-runDb :: (MonadReader AppConfig m, MonadIO m) => SqlPersistT IO b -> m (Either AppError b)
+runDb :: (MonadReader AppConfig m, MonadIO m, MonadError AppError m) => SqlPersistT IO b -> m (Either AppError b)
 runDb query = do
     pool <- asks dbPool
-    liftIO $ (fmap . first) DbError $ try $ runSqlPool query pool
+    eitherResult <- liftIO $ (fmap . first) DbError $ try $ runSqlPool query pool
+    case eitherResult of
+      Left e -> throwError e
+      b      -> pure b

@@ -17,7 +17,12 @@ import           Db
 import           Network.Wai                (Application)
 import           Network.Wai.Handler.Warp   (run)
 import           Servant
+import Data.Int
 import           Types
+
+type TodoAPI = "todos" :> Get '[JSON] [Todo]
+          :<|> "todos" :> Capture "id" Int64 :> Get '[JSON] (Maybe Todo)
+          :<|> "todos" :> ReqBody '[JSON] Todo :> Post '[JSON] Int64
 
 appToHandler :: AppConfig -> App a -> Handler a
 appToHandler config = Handler . withExceptT toServantError . flip runReaderT config . runStdoutLoggingT . unApp
@@ -41,14 +46,10 @@ backend :: ServerT TodoAPI App
 backend = getTodos :<|> getTodo :<|> addTodo
 
 getTodos :: App [Todo]
-getTodos = getTodos
+getTodos = getItems
 
-getTodo :: Int -> App (Maybe Todo)
-getTodo = getTodo
+getTodo :: Int64 -> App (Maybe Todo)
+getTodo = getItem
 
-addTodo :: Todo -> App Int
-addTodo  = addTodo
-
-type TodoAPI = "todos" :> Get '[JSON] [Todo]
-          :<|> "todos" :> Capture "id" Int :> Get '[JSON] (Maybe Todo)
-          :<|> "todos" :> ReqBody '[JSON] Todo :> Post '[JSON] Int
+addTodo :: Todo -> App Int64
+addTodo  = addItem

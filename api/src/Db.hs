@@ -34,14 +34,14 @@ Todo json
 class Monad m => MonadTodoDb m where
   getItems :: m [Todo]
   getItem  :: Int64 -> m (Maybe Todo)
-  addItem  :: Todo -> m ()
+  addItem  :: Todo -> m Int64
 
 instance MonadTodoDb App where
   getItems = (fmap . fmap) entityVal (runDb $ selectList [] [])
 
   getItem todoId' = runDb $ get (toSqlKey todoId')
 
-  addItem todoItem' = () <$ runDb (insert todoItem')
+  addItem todoItem' = fromSqlKey <$> runDb (insert todoItem')
 
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll

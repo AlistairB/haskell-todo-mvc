@@ -16,4 +16,5 @@ data AppConfig = AppConfig
   }
 
 data AppError =
-    DbError SomeException
+  DbError SomeException
+  deriving Show

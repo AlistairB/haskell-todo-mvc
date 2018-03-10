@@ -1,4 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
 {-# LANGUAGE FlexibleContexts           #-}
@@ -9,14 +8,17 @@
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 module Db where
 
 import           Control.Exception
 import           Control.Monad.Except
+import           Control.Monad.Logger
 import           Control.Monad.Reader
 import           Data.Bifunctor
+import           Data.Text
 import           Database.Persist
 import           Database.Persist.Sql
 import           Database.Persist.TH
@@ -35,30 +37,20 @@ class Monad m => MonadTodoDb m where
   addItem  :: Todo -> m ()
 
 instance MonadTodoDb App where
-  getItems = do
-    results <- runDb $ selectList [] []
-    case results of
-      Left e -> throwError e
-      Right results' -> pure $ entityVal <$> results'
+  getItems = (fmap . fmap) entityVal (runDb $ selectList [] [])
 
-  getItem todoId' = do
-    eitherResult <- runDb $ get (toSqlKey todoId')
-    case eitherResult of
-      Left e -> throwError e
-      Right a -> pure a
+  getItem todoId' = runDb $ get (toSqlKey todoId')
 
-  addItem todoItem' = do
-    eitherResult <- runDb $ insert todoItem'
-      Left e -> throwError e
-      Right a -> pure ()
+  addItem todoItem' = () <$ runDb (insert todoItem')
 
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll
 
-runDb :: (MonadReader AppConfig m, MonadIO m, MonadError AppError m) => SqlPersistT IO b -> m (Either AppError b)
+runDb :: (MonadReader AppConfig m, MonadIO m, MonadError AppError m, MonadLogger m) => SqlPersistT IO b -> m b
 runDb query = do
     pool <- asks dbPool
     eitherResult <- liftIO $ (fmap . first) DbError $ try $ runSqlPool query pool
     case eitherResult of
-      Left e -> throwError e
-      b      -> pure b
+      -- todo use logError with TH?
+      Left e  -> logErrorNS "runDb" (pack $ show e) >> throwError e
+      Right b -> pure b

@@ -13,15 +13,16 @@ import           Control.Monad.Except
 import           Control.Monad.Logger
 import           Control.Monad.Reader
 import           Data.ByteString.Lazy.Char8
+import           Data.Int
+import           Database.Persist
 import           Db
 import           Network.Wai                (Application)
 import           Network.Wai.Handler.Warp   (run)
 import           Servant
-import Data.Int
 import           Types
 
-type TodoAPI = "todos" :> Get '[JSON] [Todo]
-          :<|> "todos" :> Capture "id" Int64 :> Get '[JSON] (Maybe Todo)
+type TodoAPI = "todos" :> Get '[JSON] [Entity Todo]
+          :<|> "todos" :> Capture "id" Int64 :> Get '[JSON] (Maybe (Entity Todo))
           :<|> "todos" :> ReqBody '[JSON] Todo :> Post '[JSON] Int64
 
 appToHandler :: AppConfig -> App a -> Handler a
@@ -45,10 +46,10 @@ api = Proxy
 backend :: ServerT TodoAPI App
 backend = getTodos :<|> getTodo :<|> addTodo
 
-getTodos :: App [Todo]
+getTodos :: App [Entity Todo]
 getTodos = getItems
 
-getTodo :: Int64 -> App (Maybe Todo)
+getTodo :: Int64 -> App (Maybe (Entity Todo))
 getTodo = getItem
 
 addTodo :: Todo -> App Int64

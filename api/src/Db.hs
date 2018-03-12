@@ -27,19 +27,18 @@ import           Types
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Todo json
-    todoId Int
     name String
 |]
 
 class Monad m => MonadTodoDb m where
-  getItems :: m [Todo]
-  getItem  :: Int64 -> m (Maybe Todo)
+  getItems :: m [Entity Todo]
+  getItem  :: Int64 -> m (Maybe (Entity Todo))
   addItem  :: Todo -> m Int64
 
 instance MonadTodoDb App where
-  getItems = (fmap . fmap) entityVal (runDb $ selectList [] [])
+  getItems = runDb $ selectList [] []
 
-  getItem todoId' = runDb $ get (toSqlKey todoId')
+  getItem todoId' = runDb $ getEntity (toSqlKey todoId')
 
   addItem todoItem' = fromSqlKey <$> runDb (insert todoItem')
 

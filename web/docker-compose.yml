@@ -7,6 +7,8 @@ services:
       context: .
     working_dir: /work
     command: support/dev/run
+    ports:
+      - 8080:8080
     volumes:
       - .:/work
       - yarn-cache:/tmp/yarn-cache

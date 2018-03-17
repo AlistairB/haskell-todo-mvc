@@ -1,0 +1,14 @@
+{
+  "name": "haskell-todo-mvc-web",
+  "version": "1.0.0",
+  "description": "The front for a haskell todo mvc solution",
+  "main": "index.js",
+  "repository": "https://github.com/AlistairB/haskell-todo-mvc",
+  "author": "Alistair",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "bower": "^1.8.2",
+    "pulp": "^12.0.1",
+    "purescript": "^0.11.7"
+  }
+}

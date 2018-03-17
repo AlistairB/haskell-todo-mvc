@@ -1,1 +1,1 @@
-FROM fpco/stack-build:lts-10.7
+FROM fpco/stack-build:lts-11.0

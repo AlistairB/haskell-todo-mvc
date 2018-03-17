@@ -1,0 +1,14 @@
+#!/bin/bash -eu
+
+cd $(dirname $0)/..
+
+# Clean up at the end
+trap "docker-compose down --volumes --remove-orphans" 0
+
+# Create volume
+docker volume create --name yarn-cache > /dev/null
+
+docker-compose build ${SERVICE-dev}
+
+# Run dev script or use what is passed in as arguments
+docker-compose run --rm ${SERVICE-dev} "$@"

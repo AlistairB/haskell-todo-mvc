@@ -9,6 +9,7 @@ services:
     command: support/dev/run
     ports:
       - 8080:8080
+      - 4008:4008
     volumes:
       - .:/work
       - yarn-cache:/tmp/yarn-cache

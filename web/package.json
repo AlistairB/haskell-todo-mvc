@@ -2,10 +2,10 @@
   "name": "haskell-todo-mvc-web",
   "version": "1.0.0",
   "description": "The front-end for a haskell todo mvc solution",
-  "main": "index.js",
   "repository": "https://github.com/AlistairB/haskell-todo-mvc",
   "author": "Alistair",
   "license": "UNLICENSED",
+  "files": [],
   "scripts": {
     "webpack": "DEBUG=purs-loader* DEBUG_DEPTH=100 webpack --progress --bail",
     "webpack:watch": "PATH=$PATH:../releases/psc-package DEBUG=purs-loader* DEBUG_DEPTH=100 webpack --progress --display-error-details --display verbose --watch",
@@ -23,6 +23,7 @@
     "purs-loader": "^3.1.4",
     "webpack": "^4.1.1",
     "webpack-cli": "^2.0.12",
-    "webpack-dev-server": "^3.1.1"
+    "webpack-dev-server": "^3.1.1",
+    "wrappy": "^1.0.2"
   }
 }

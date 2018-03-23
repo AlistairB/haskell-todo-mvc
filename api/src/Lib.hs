@@ -30,6 +30,7 @@ appToHandler config = Handler . withExceptT toServantError . flip runReaderT con
 
 toServantError :: AppError -> ServantErr
 toServantError (DbError a) = err500 { errBody = pack $ show a }
+toServantError (CustomApiError a) = a
 
 server :: AppConfig -> Server TodoAPI
 server config = hoistServer api (appToHandler config) backend
@@ -50,7 +51,11 @@ getTodos :: App [Entity Todo]
 getTodos = getItems
 
 getTodo :: Int64 -> App (Maybe (Entity Todo))
-getTodo = getItem
+getTodo todoId = do
+  result <- getItem todoId
+  case result of
+    a@(Just _) -> pure a
+    Nothing -> throwError $ CustomApiError err404
 
 addTodo :: Todo -> App Int64
-addTodo  = addItem
+addTodo = addItem

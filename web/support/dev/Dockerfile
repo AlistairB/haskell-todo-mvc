@@ -1,4 +1,4 @@
-FROM node:9.8.0
+FROM node:9
 
 # WORKDIR /work
 #

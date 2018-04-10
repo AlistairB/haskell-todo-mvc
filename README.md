@@ -1,5 +1,6 @@
 # haskell-todo-mvc
 
+A haskell backend for a [todo MVC](http://todomvc.com) app
 
 ```bash
 # create a new todo
